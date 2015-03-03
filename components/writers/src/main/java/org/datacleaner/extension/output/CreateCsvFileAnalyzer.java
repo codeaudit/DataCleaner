@@ -64,6 +64,8 @@ import org.datacleaner.output.csv.CsvOutputWriterFactory;
 import org.datacleaner.user.UserPreferences;
 import org.datacleaner.util.CompareUtils;
 import org.datacleaner.util.sort.SortMergeWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Named("Create CSV file")
 @Alias("Write to CSV file")
@@ -71,12 +73,14 @@ import org.datacleaner.util.sort.SortMergeWriter;
 @Categorized(superCategory = WriteSuperCategory.class)
 @Distributed(false)
 public class CreateCsvFileAnalyzer extends AbstractOutputWriterAnalyzer implements HasLabelAdvice {
+
+    private static Logger logger = LoggerFactory.getLogger(CreateCsvFileAnalyzer.class); 
     
     public static final String PROPERTY_FILE = "File";
     public static final String PROPERTY_OVERWRITE_FILE_IF_EXISTS = "Overwrite file if exists";
     public static final String PROPERTY_COLUMN_TO_BE_SORTED_ON = "Column to be sorted on";
 
-    @Configured(value=PROPERTY_FILE, order = 1)
+    @Configured(value = PROPERTY_FILE, order = 1)
     @FileProperty(accessMode = FileAccessMode.SAVE, extension = { "csv", "tsv", "txt", "dat" })
     File file;
 
@@ -92,10 +96,10 @@ public class CreateCsvFileAnalyzer extends AbstractOutputWriterAnalyzer implemen
     @Configured(order = 5, required = false)
     boolean includeHeader = true;
 
-    @Configured(order = 6, required = false, value=PROPERTY_COLUMN_TO_BE_SORTED_ON)
+    @Configured(order = 6, required = false, value = PROPERTY_COLUMN_TO_BE_SORTED_ON)
     InputColumn<?> columnToBeSortedOn;
 
-    @Configured(value=PROPERTY_OVERWRITE_FILE_IF_EXISTS)
+    @Configured(value = PROPERTY_OVERWRITE_FILE_IF_EXISTS)
     boolean overwriteFileIfExists;
 
     @Inject
@@ -112,11 +116,27 @@ public class CreateCsvFileAnalyzer extends AbstractOutputWriterAnalyzer implemen
     public void initTempFile() throws Exception {
         if (_targetFile == null) {
             if (columnToBeSortedOn != null) {
-                _targetFile = File.createTempFile("csv_file_analyzer", ".csv");
+                createTemporaryFile("csv_file_analyzer", ".csv");
             } else {
-                _targetFile = file;
+                _targetFile = createFile();
             }
         }
+    }
+
+    private void createTemporaryFile(String prefix, String sufix) throws Exception {
+        if (userPreferences != null) {
+            _targetFile = File.createTempFile("csv_file_analyzer", ".csv", userPreferences.getSaveDatastoreDirectory());
+        } else {
+            _targetFile = File.createTempFile("csv_file_analyzer", ".csv");
+        }
+    }
+
+    private File createFile() {
+        if (userPreferences != null) {
+            file = new File(userPreferences.getSaveDatastoreDirectory(), file.getName());
+        }
+        logger.info("In init file path {}", file.getPath());
+        return file;
     }
 
     @Override
@@ -187,6 +207,7 @@ public class CreateCsvFileAnalyzer extends AbstractOutputWriterAnalyzer implemen
             }
         }
 
+        logger.info("Target File  path is {}", _targetFile.getPath()); 
         return CsvOutputWriterFactory.getWriter(_targetFile.getPath(), headers.toArray(new String[0]), separatorChar,
                 quoteChar, escapeChar, includeHeader, columns);
     }

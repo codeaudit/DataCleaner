@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.metamodel.DataContext;
@@ -44,6 +45,7 @@ import org.datacleaner.api.Configured;
 import org.datacleaner.api.Description;
 import org.datacleaner.api.Distributed;
 import org.datacleaner.api.FileProperty;
+import org.datacleaner.api.Provided;
 import org.datacleaner.api.FileProperty.FileAccessMode;
 import org.datacleaner.api.HasLabelAdvice;
 import org.datacleaner.api.Initialize;
@@ -62,6 +64,7 @@ import org.datacleaner.job.builder.AnalysisJobBuilder;
 import org.datacleaner.output.OutputWriter;
 import org.datacleaner.output.csv.CsvOutputWriterFactory;
 import org.datacleaner.output.excel.ExcelOutputWriterFactory;
+import org.datacleaner.user.UserPreferences;
 import org.datacleaner.util.CompareUtils;
 import org.datacleaner.util.sort.SortMergeWriter;
 
@@ -77,10 +80,15 @@ public class CreateExcelSpreadsheetAnalyzer extends AbstractOutputWriterAnalyzer
     public static final String PROPERTY_OVERWRITE_SHEET_IF_EXISTS = "Overwrite sheet if exists";
     
     private static final char[] ILLEGAL_SHEET_CHARS = new char[] { '.', ':' };
+    
+    @Inject
+    @Provided
+    UserPreferences userPreferences;
 
     @Configured(PROPERTY_FILE)
     @FileProperty(accessMode = FileAccessMode.SAVE, extension = { "xls", "xlsx" })
     File file = new File("DataCleaner-staging.xlsx");
+    
 
     @Configured(PROPERTY_SHEET_NAME)
     String sheetName;

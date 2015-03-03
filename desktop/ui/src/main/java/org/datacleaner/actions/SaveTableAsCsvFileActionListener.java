@@ -83,7 +83,7 @@ public final class SaveTableAsCsvFileActionListener implements ActionListener {
         final AnalyzerComponentBuilder<CreateCsvFileAnalyzer> csvOutputAnalyzerBuilder = ajb
                 .addAnalyzer(CreateCsvFileAnalyzer.class);
         csvOutputAnalyzerBuilder.addInputColumns(ajb.getSourceColumns());
-        File directory = _userPreferences.getConfiguredFileDirectory();
+        File directory = _userPreferences.getSaveDatastoreDirectory();
         csvOutputAnalyzerBuilder.getComponentInstance().setFile(new File(directory, _table.getName() + ".csv"));
 
         final PropertyWidgetFactory propertyWidgetFactory = _parentModule.createChildInjectorForComponent(

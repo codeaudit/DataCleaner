@@ -83,7 +83,7 @@ public final class SaveTableAsExcelSpreadsheetActionListener implements ActionLi
         final AnalyzerComponentBuilder<CreateExcelSpreadsheetAnalyzer> excelOutputAnalyzerBuilder = ajb
                 .addAnalyzer(CreateExcelSpreadsheetAnalyzer.class);
         excelOutputAnalyzerBuilder.addInputColumns(ajb.getSourceColumns());
-        File directory = _userPreferences.getConfiguredFileDirectory();
+        File directory = _userPreferences.getSaveDatastoreDirectory();
         excelOutputAnalyzerBuilder.getComponentInstance().setFile(new File(directory, _datastore.getName() + ".xlsx"));
         excelOutputAnalyzerBuilder.getComponentInstance().setSheetName(_table.getName());
 
